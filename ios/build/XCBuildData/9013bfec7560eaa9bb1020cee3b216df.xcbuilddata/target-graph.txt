@@ -1,0 +1,16 @@
+Target dependency graph (6 targets)
+Flutter in Pods, no dependencies
+Try in Pods, no dependencies
+flutter_tts in Pods, depends on:
+Flutter in Pods (explicit)
+path_provider_foundation in Pods, depends on:
+Flutter in Pods (explicit)
+speech_to_text in Pods, depends on:
+Flutter in Pods (explicit)
+Try in Pods (explicit)
+Pods-Runner in Pods, depends on:
+Flutter in Pods (explicit)
+Try in Pods (explicit)
+flutter_tts in Pods (explicit)
+path_provider_foundation in Pods (explicit)
+speech_to_text in Pods (explicit)

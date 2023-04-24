@@ -1,0 +1,4 @@
+#Sun Apr 23 18:57:18 IST 2023
+base.0=/Users/sunitjalan/StudioProjects/speakeasy/build/app/intermediates/dex/release/minifyReleaseWithR8/classes.dex
+renamed.0=classes.dex
+path.0=classes.dex

@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "/Users/sunitjalan/StudioProjects/speakeasy/build/flutter_tts/intermediates/merged_res/release/layout-v21/notification_template_custom_big.xml",
+        "source": "/Users/sunitjalan/.gradle/caches/transforms-3/42e6491f5f37d2219727138ee1097e2e/transformed/core-1.8.0/res/layout-v21/notification_template_custom_big.xml"
+    },
+    {
+        "merged": "/Users/sunitjalan/StudioProjects/speakeasy/build/flutter_tts/intermediates/merged_res/release/layout-v21/notification_template_icon_group.xml",
+        "source": "/Users/sunitjalan/.gradle/caches/transforms-3/42e6491f5f37d2219727138ee1097e2e/transformed/core-1.8.0/res/layout-v21/notification_template_icon_group.xml"
+    },
+    {
+        "merged": "/Users/sunitjalan/StudioProjects/speakeasy/build/flutter_tts/intermediates/merged_res/release/layout-v21/notification_action_tombstone.xml",
+        "source": "/Users/sunitjalan/.gradle/caches/transforms-3/42e6491f5f37d2219727138ee1097e2e/transformed/core-1.8.0/res/layout-v21/notification_action_tombstone.xml"
+    },
+    {
+        "merged": "/Users/sunitjalan/StudioProjects/speakeasy/build/flutter_tts/intermediates/merged_res/release/layout-v21/notification_action.xml",
+        "source": "/Users/sunitjalan/.gradle/caches/transforms-3/42e6491f5f37d2219727138ee1097e2e/transformed/core-1.8.0/res/layout-v21/notification_action.xml"
+    }
+]

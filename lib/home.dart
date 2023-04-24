@@ -1,165 +1,253 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:speakeasy/ScanInput.dart';
+import 'package:speakeasy/TextInput.dart';
+import 'package:speakeasy/VoiceInput.dart';
+import 'package:speakeasy/drawer.dart';
 
-
-
-
+import 'model/user_model.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
+
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final stt.SpeechToText _speechToText = stt.SpeechToText();
-  bool _isRecording = false;
 
-  void _startRecording() async {
-    if (!_isRecording) {
-      bool result = await _speechToText.initialize();
-      if (result) {
-        setState(() => _isRecording = true);
-        _speechToText.listen(onResult: (result) {
-          if (result.finalResult) {
-            // TODO: Send the recognized text to the backend for translation
-          }
-        });
-      }
-    }
+
+  User? user = FirebaseAuth.instance.currentUser;
+  UserModel loggedInUser = UserModel();
+
+
+  late Position _currentPosition;
+  bool _switchValue = false;
+
+  Future<String> getCurrentCountry() async {
+    LocationPermission permission;
+    permission = await Geolocator.requestPermission();
+    Position position = await Geolocator.getCurrentPosition();
+    List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+    return placemarks[0].country ?? '';
   }
 
-  void _stopRecording() {
-    if (_isRecording) {
-      setState(() => _isRecording = false);
-      _speechToText.stop();
-    }
+  @override
+  void initState(){
+    super.initState();
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(user!.uid)
+        .get()
+        .then((value){
+      this.loggedInUser = UserModel.fromMap(value.data());
+      setState(() {});
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: MyDrawer(),
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: Text('Voice Translation App'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Tap the microphone button to start recording',
-              style: TextStyle(fontSize: 18.0),
+        shadowColor: Colors.transparent,
+        backgroundColor: Color(0xCD5613).withOpacity(1),
+        title: Padding(
+          padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
+          child: Text(
+            "SpeakEasy",
+            style: GoogleFonts.stickNoBills(
+              fontSize: 50,
+              fontWeight: FontWeight.bold,
             ),
-            SizedBox(height: 16.0),
-            IconButton(
-              iconSize: 72.0,
-              icon: Icon(_isRecording ? Icons.mic : Icons.mic_none),
-              onPressed: _isRecording ? _stopRecording : _startRecording,
-            ),
-          ],
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.language),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => LanguageSelectionScreen()),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class LanguageSelectionScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Select Languages'),
-      ),
-      body: Column(
+      body: SafeArea(
+        child: Stack(
           children: [
-              ListTile(
-              leading: Icon(Icons.mic),
-              title: Text('Source Language'),
-              trailing: DropdownButton<String>(
-                value: 'English',
-                onChanged: (value) {},
-                items: [
-                  DropdownMenuItem(value: 'English', child: Text('English')),
-                  DropdownMenuItem(value: 'Spanish', child: Text('Spanish')),
-                  DropdownMenuItem(value: 'French', child: Text('French')),
-                ],
-              ),
-              ),
-
-              ListTile(
-              leading: Icon(Icons.translate),
-              title: Text('Target Language'),
-              trailing: DropdownButton<String>(
-              value: 'Spanish',
-              onChanged: (value) {},
-              items: [
-              DropdownMenuItem(value: 'English', child: Text('English')),
-              DropdownMenuItem(value: 'Spanish', child: Text('Spanish')),
-              DropdownMenuItem(value: 'French', child: Text('French')),
-              ],
-              ),
-              ),
-
-              Spacer(),
-              Padding(
-                padding: EdgeInsets.all(16.0),
-                child: ElevatedButton(
-                child: Text('Translate'),
-                onPressed: () {
-                // TODO: Send the selected source and target languages to the backend
-                // for translation and display the translated text on the TranslationScreen
-                  Navigator.pop(context);
-                  Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => TranslationScreen()),
-                  );
-                },
+            Image.asset(
+                "assets/Home_bg.png",
+              fit: BoxFit.fill,
+              width: 50000,
+              height: 10000000,
+            ),
+            Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.fromLTRB(0, 55, 20, 0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Welcome,",
+                        style: GoogleFonts.stickNoBills(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 50,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        "${loggedInUser.name}",
+                        style: GoogleFonts.stickNoBills(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 50,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 100,
+                        child: Row(
+                          children: [
+                            Expanded(child: Container()),
+                            ElevatedButton(
+                                onPressed: () async {
+                                  String currentCountry = await getCurrentCountry();
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text('Current Country'),
+                                        content: Text(currentCountry),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: Text('Close'),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                                child: Text("Show gps"))
+                          ],
+                        ),
+                      ),
+                      Text(
+                        "Choose how to proceed",
+                        style: GoogleFonts.stick(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 32,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(height: 20,),
+                    ],
+                  ),
                 ),
-              ),
-          ],
-      ),
-    );
-    }
-}
-
-class TranslationScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Translation'),
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Original Text:',
-              style: TextStyle(fontSize: 18.0),
-            ),
-            SizedBox(height: 8.0),
-            Text(
-              'Hello, how are you?',
-              style: TextStyle(fontSize: 24.0),
-            ),
-            SizedBox(height: 16.0),
-            Text(
-              'Translated Text:',
-              style: TextStyle(fontSize: 18.0),
-            ),
-            SizedBox(height: 8.0),
-            Text(
-              'Hola, ¿cómo estás?',
-              style: TextStyle(fontSize: 24.0),
+                Row(
+                  children: [
+                    InkWell(
+                      onTap: (){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => VoiceInput()),
+                        );
+                      },
+                      child: Container(
+                        height: 100,
+                        width: MediaQuery.of(context).size.width-100,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(30),
+                            bottomRight: Radius.circular(30),
+                          ),
+                          color: Color(0xB3B3B3).withOpacity(1),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(80, 20, 80, 20),
+                          child: Text(
+                            "SPEAK",
+                            style: GoogleFonts.stickNoBills(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 50,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(child: Container()),
+                  ],
+                ),
+                SizedBox(height: 20,),
+                Row(
+                  children: [
+                    InkWell(
+                      onTap: (){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => TextInput()),
+                        );
+                      },
+                      child: Container(
+                        height: 100,
+                        width: MediaQuery.of(context).size.width-40,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(30),
+                            bottomRight: Radius.circular(30),
+                          ),
+                          color: Color(0xB3B3B3).withOpacity(1),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(80, 20, 80, 20),
+                          child: Text(
+                            "TYPE",
+                            style: GoogleFonts.stickNoBills(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 50,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(child: Container()),
+                  ],
+                ),
+                SizedBox(height: 20,),
+                Row(
+                  children: [
+                    InkWell(
+                      onTap: (){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => ScanInput()),
+                        );
+                      },
+                      child: Container(
+                        height: 100,
+                        width: MediaQuery.of(context).size.width-120,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(30),
+                            bottomRight: Radius.circular(30),
+                          ),
+                          color: Color(0xB3B3B3).withOpacity(1),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(80, 20, 80, 20),
+                          child: Text(
+                            "SCAN",
+                            style: GoogleFonts.stickNoBills(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 50,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(child: Container()),
+                  ],
+                ),
+              ],
             ),
           ],
         ),
@@ -167,111 +255,3 @@ class TranslationScreen extends StatelessWidget {
     );
   }
 }
-
-
-// import 'dart:ui';
-//
-// import 'package:flutter/material.dart';
-//
-// class AudioVisualizer extends StatefulWidget {
-//   final int lineCount;
-//   final double amplitude;
-//
-//   const AudioVisualizer({Key? key, this.lineCount = 20, this.amplitude = 100.0})
-//       : super(key: key);
-//
-//   @override
-//   _AudioVisualizerState createState() => _AudioVisualizerState();
-// }
-//
-// class _AudioVisualizerState extends State<AudioVisualizer>
-//     with SingleTickerProviderStateMixin {
-//   late AnimationController _animationController;
-//   late List<double> _lineHeights;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     _animationController = AnimationController(
-//       vsync: this,
-//       duration: const Duration(milliseconds: 100),
-//     )..repeat();
-//     _lineHeights = List.generate(widget.lineCount, (_) => 0.0);
-//   }
-//
-//   @override
-//   void dispose() {
-//     _animationController.dispose();
-//     super.dispose();
-//   }
-//
-//   void _updateLineHeights(double rms) {
-//     final amp = widget.amplitude;
-//     final range = amp * 0.7;
-//     final diff = (amp - range) / widget.lineCount;
-//     final step = range / widget.lineCount;
-//     final scale = rms / amp;
-//     for (var i = 0; i < widget.lineCount; i++) {
-//       final target = (amp - i * diff) - scale * step * i;
-//       _lineHeights[i] = lerpDouble(_lineHeights[i], target, 0.1)!;
-//     }
-//     setState(() {});
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return CustomPaint(
-//       painter: AudioVisualizerPainter(_lineHeights),
-//       child: SizedBox.expand(
-//         child: AnimatedBuilder(
-//           animation: _animationController,
-//           builder: (_, __) => Container(
-//             decoration: BoxDecoration(
-//               gradient: LinearGradient(
-//                 colors: [
-//                   Theme.of(context).primaryColor,
-//                   Theme.of(context).accentColor,
-//                 ],
-//                 begin: Alignment.topCenter,
-//                 end: Alignment.bottomCenter,
-//               ),
-//             ),
-//             child: TextButton(
-//               onPressed: () {},
-//               child: const Text('Tap to Play'),
-//               style: TextButton.styleFrom(
-//                 primary: Colors.white,
-//                 textStyle: const TextStyle(fontSize: 20),
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-//
-// class AudioVisualizerPainter extends CustomPainter {
-//   final List<double> lineHeights;
-//   final Paint _paint = Paint()
-//     ..color = Colors.white
-//     ..strokeWidth = 4.0;
-//
-//   AudioVisualizerPainter(this.lineHeights);
-//
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     final width = size.width / lineHeights.length;
-//     final height = size.height;
-//     for (var i = 0; i < lineHeights.length; i++) {
-//       final x = i * width;
-//       final y = height - lineHeights[i];
-//       canvas.drawLine(Offset(x, height), Offset(x, y), _paint);
-//     }
-//   }
-//
-//   @override
-//   bool shouldRepaint(AudioVisualizerPainter oldDelegate) {
-//     return oldDelegate.lineHeights != lineHeights;
-//   }
-// }
