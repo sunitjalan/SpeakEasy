@@ -22,7 +22,7 @@ class _VoiceInputState extends State<VoiceInput>
   String _selectedSourceLanguage = 'en';
   String _selectedTargetLanguage = 'es';
   String _sourceText = 'Hello, how are you?';
-  String _translatedText = '';
+  String _translatedText = 'Hello';
   bool _isTranslating = false;
   SpeechToText speechToText=SpeechToText();
   // var _textToSpeak="";
@@ -565,7 +565,7 @@ class _VoiceInputState extends State<VoiceInput>
                               ),
                               child: Padding(
                                 padding: EdgeInsets.fromLTRB(10, 10, 10,10),
-                                child: Text(_sourceText,
+                                child: Text(_translatedText,
                                   style: GoogleFonts.rubik(
                                     fontSize: 20,
                                     color: Colors.black,

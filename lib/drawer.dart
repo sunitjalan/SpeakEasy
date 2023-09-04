@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:speakeasy/contactus.dart';
+import 'package:speakeasy/credits.dart';
 import 'package:speakeasy/home.dart';
 import 'package:speakeasy/login.dart';
 import 'package:speakeasy/profile.dart';
@@ -132,7 +134,10 @@ class _MyDrawerState extends State<MyDrawer> {
               ),
             ),
             onTap: () {
-
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CreditsScreen()),
+              );
             },
           ),
           ListTile(
@@ -146,7 +151,10 @@ class _MyDrawerState extends State<MyDrawer> {
               ),
             ),
             onTap: () {
-
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ContactUs()),
+              );
             },
           ),
         ]));

@@ -82,7 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 135,),
+                SizedBox(height: 145,),
                 Text(
                   "Email in use:",
                   style: GoogleFonts.rubik(

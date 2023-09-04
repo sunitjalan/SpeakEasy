@@ -8,6 +8,7 @@ import 'package:speakeasy/ScanInput.dart';
 import 'package:speakeasy/TextInput.dart';
 import 'package:speakeasy/VoiceInput.dart';
 import 'package:speakeasy/drawer.dart';
+import 'package:speakeasy/main.dart';
 
 import 'model/user_model.dart';
 
@@ -25,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   UserModel loggedInUser = UserModel();
 
 
+
   late Position _currentPosition;
   bool _switchValue = false;
 
@@ -34,6 +36,151 @@ class _HomeScreenState extends State<HomeScreen> {
     Position position = await Geolocator.getCurrentPosition();
     List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
     return placemarks[0].country ?? '';
+  }
+
+  showResults() async {
+    String currentCountry = await getCurrentCountry();
+    final CollectionReference usersCollection = FirebaseFirestore.instance.collection('languagetips');
+    final QuerySnapshot querySnapshot =
+    await usersCollection.where('country', isEqualTo: currentCountry).get();
+
+    List<Widget> results=[];
+    int k=0;
+    for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
+      var tip1=documentSnapshot['tip1'];
+      var tip2=documentSnapshot['tip2'];
+      var tip3=documentSnapshot['tip3'];
+      results.add(
+          Container(
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              color: Color(0xB3B3B3).withOpacity(1),
+            ),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(10, 20, 10, 20),
+              child: Column(
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      SizedBox(
+                        width: 8,
+                        height: 8,
+                        child: CircleAvatar(
+                          backgroundColor: Colors.black,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          "${tip1}",
+                          style: GoogleFonts.rubik(
+                            fontSize: 20,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10,),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      SizedBox(
+                        width: 8,
+                        height: 8,
+                        child: CircleAvatar(
+                          backgroundColor: Colors.black,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          "${tip2}",
+                          style: GoogleFonts.rubik(
+                            fontSize: 20,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10,),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      SizedBox(
+                        width: 8,
+                        height: 8,
+                        child: CircleAvatar(
+                          backgroundColor: Colors.black,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          "${tip3}",
+                          style: GoogleFonts.rubik(
+                            fontSize: 20,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              // Text(
+              //   "${tip1}\n${tip2}\n${tip3}",
+              //   style: TextStyle(
+              //     fontSize: 20,
+              //     color: Colors.white70,
+              //   ),
+              // ),
+            ),
+          )
+      );
+      k=k+1;
+    }
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Color(0xB3B3B3).withOpacity(1),
+          title: Text(
+              'Some Suggestions for when in ${currentCountry}:',
+            style: GoogleFonts.stick(
+              fontSize: 20,
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Container(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: results,
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(
+                  'Close',
+                style: GoogleFonts.stick(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xCD5613).withOpacity(1),
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -106,28 +253,45 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Row(
                           children: [
                             Expanded(child: Container()),
-                            ElevatedButton(
-                                onPressed: () async {
-                                  String currentCountry = await getCurrentCountry();
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: Text('Current Country'),
-                                        content: Text(currentCountry),
-                                        actions: <Widget>[
-                                          TextButton(
-                                            child: Text('Close'),
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
+                            if( loggedInUser.gps == "true" )
+                              Container(
+                              child: ElevatedButton(
+                                onPressed: (){
+                                  showResults();
                                 },
-                                child: Text("Show gps"))
+                                  // onPressed: () async {
+                                  //   String currentCountry = await getCurrentCountry();
+                                  //   showDialog(
+                                  //     context: context,
+                                  //     builder: (BuildContext context) {
+                                  //       return AlertDialog(
+                                  //         title: Text('Current Country'),
+                                  //         content: Text(currentCountry),
+                                  //         actions: <Widget>[
+                                  //           TextButton(
+                                  //             child: Text('Close'),
+                                  //             onPressed: () {
+                                  //               Navigator.of(context).pop();
+                                  //             },
+                                  //           ),
+                                  //         ],
+                                  //       );
+                                  //     },
+                                  //   );
+                                  // },
+                                style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.all<Color>(
+                                      Color(0xCD5613).withOpacity(1)),
+                                ),
+                                  child: Text(
+                                      "Get Language Tips!\nFor Current Country",
+                                    style: GoogleFonts.stick(
+                                      fontSize: 20,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -235,7 +399,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Padding(
                           padding: EdgeInsets.fromLTRB(80, 20, 80, 20),
                           child: Text(
-                            "SCAN",
+                            "PDF",
                             style: GoogleFonts.stickNoBills(
                               fontWeight: FontWeight.bold,
                               fontSize: 50,

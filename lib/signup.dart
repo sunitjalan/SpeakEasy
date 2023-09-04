@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:speakeasy/home.dart';
 import 'login.dart';
 import 'model/user_model.dart';
+import 'main.dart';
 
 
 class SignupScreen extends StatefulWidget {
@@ -26,8 +27,8 @@ class _SignupScreenState extends State<SignupScreen>
   final _lang1Controller = new TextEditingController();
   final _lang2Controller = new TextEditingController();
   final _gpsController = new TextEditingController();
-
-  bool _switchValue = false;
+  //
+  // bool _switchValue = false;
 
   bool toBoolean(String str, [bool strict = false]) {
     if (strict == true) {
@@ -573,7 +574,7 @@ class _SignupScreenState extends State<SignupScreen>
                                 value: toBoolean(_gpsController.text),
                                 onChanged: (value) {
                                   setState(() {
-                                    _gpsController.text = value!.toString();
+                                    _gpsController.text = value.toString();
                                   });
                                 },
                               ),
@@ -626,7 +627,7 @@ class _SignupScreenState extends State<SignupScreen>
     UserModel userModel = UserModel();
 
     userModel.email = user!.email;
-    userModel.uid = user!.uid;
+    userModel.uid = user.uid;
     userModel.name= _nameController.text;
     userModel.lang1=_lang1Controller.text;
     userModel.lang2=_lang2Controller.text;
